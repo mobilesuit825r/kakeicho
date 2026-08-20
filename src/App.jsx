@@ -73,7 +73,6 @@ function generateRecurringEntries(rule, ruleId) {
 }
 
 
-
 export default function App() {
   const [scriptUrl, setScriptUrlState] = useState(getScriptUrl());
   const [entries, setEntries] = useState([]);
@@ -311,6 +310,7 @@ function SetupScreen({ onSave, error, defaultUrl, embedded }) {
   );
 }
 
+
 /* ================= ENTRY TAB ================= */
 function EntryTab({ data, addEntry, removeEntry, editEntry, bulkRemoveEntries, bulkEditAmount }) {
   const [type, setType] = useState("expense");
@@ -512,7 +512,7 @@ function EntryTab({ data, addEntry, removeEntry, editEntry, bulkRemoveEntries, b
           {filtered.map((e) => (
             <div key={e.id} style={{ ...styles.listRowSelectable, opacity: e.planned ? 0.6 : 1 }}>
               <input type="checkbox" checked={selected.has(e.id)} onChange={() => toggleSelect(e.id)} />
-              <div style={styles.listDate}>{e.date}</div>
+              <div style={styles.listDate}>{String(e.date).slice(0, 10)}</div>
               <div style={styles.listCat}>{e.category}{e.isCard ? " ・カード" : ""}{e.planned ? " ・予定" : ""}</div>
               <div style={{ ...styles.listMemo }}>{e.memo}</div>
               <EditableAmount
@@ -746,8 +746,8 @@ function AsobiTab({ entries, asobiBudgets, setAsobiBudget }) {
           {asobiEntries.length === 0 && <div style={styles.empty}>この月の遊び代の記録はまだありません。</div>}
           {asobiEntries.map((e) => (
             <div key={e.id} style={styles.listRow}>
-              <div style={styles.listDate}>{e.date}</div>
-              <div style={styles.listMemo}>{e.memo || "(メモなし)"}{e.isCard ? ` ・カード(引落 ${e.cardPayDate})` : " ・現金"}</div>
+              <div style={styles.listDate}>{String(e.date).slice(0, 10)}</div>
+              <div style={styles.listMemo}>{e.memo || "(メモなし)"}{e.isCard ? ` ・カード(引落 ${String(e.cardPayDate || "").slice(0, 10)})` : " ・現金"}</div>
               <div style={{ ...styles.listAmount, color: "var(--hanko)" }}>−{YEN(e.amount)}</div>
             </div>
           ))}
@@ -874,7 +874,7 @@ function SimulationTab({
         </div>
       </section>
 
-      <div style={styles.grid2}>
+      <div className="grid2">
         <section style={styles.card}>
           <h2 style={styles.cardTitle}>定期的な予定を追加</h2>
           <form onSubmit={submitRule} style={styles.form}>
@@ -952,7 +952,7 @@ function SimulationTab({
             {plannedOneOffs.length === 0 && <div style={styles.empty}>まだありません。</div>}
             {plannedOneOffs.sort((a, b) => (a.date < b.date ? -1 : 1)).map((e) => (
               <div key={e.id} style={styles.listRow}>
-                <div style={styles.listDate}>{e.date}</div>
+                <div style={styles.listDate}>{String(e.date).slice(0, 10)}</div>
                 <div style={styles.listMemo}>{e.category} {e.memo}</div>
                 <EditableAmount
                   value={e.amount}
@@ -1018,7 +1018,7 @@ function ScenarioTab() {
     <div>
       <section style={styles.card}>
         <h2 style={styles.cardTitle}>条件を入力</h2>
-        <div style={styles.grid3}>
+        <div className="grid3">
           <label style={styles.label}>基本給(円)
             <input type="number" value={base} onChange={(e) => setBase(Number(e.target.value))} style={styles.input} />
           </label>
@@ -1105,10 +1105,20 @@ const globalCss = `
     --gold: #A67C2E;
     --rule: #D9C9A8;
   }
+  html, body { margin: 0; padding: 0; max-width: 100vw; overflow-x: hidden; }
+  #root { max-width: 100vw; overflow-x: hidden; }
   * { box-sizing: border-box; }
   input, select, button { font-family: inherit; }
   input:focus, select:focus, button:focus-visible {
     outline: 2px solid var(--hanko); outline-offset: 2px;
+  }
+  .grid2 { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+  @media (max-width: 720px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .grid3 { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 `;
@@ -1122,6 +1132,8 @@ const styles = {
     background: "var(--paper)",
     color: "var(--ink)",
     minHeight: "100%",
+    maxWidth: "100vw",
+    overflowX: "hidden",
     padding: "0 0 40px",
   },
   header: {
