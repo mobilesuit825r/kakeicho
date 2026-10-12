@@ -514,7 +514,6 @@ function EntryTab({ data, addEntry, removeEntry, editEntry, bulkRemoveEntries, b
               <input type="checkbox" checked={selected.has(e.id)} onChange={() => toggleSelect(e.id)} />
               <div style={styles.listDate}>{String(e.date).slice(0, 10)}</div>
               <div style={styles.listCat}>{e.category}{e.isCard ? " ・カード" : ""}{e.planned ? " ・予定" : ""}</div>
-              <div style={{ ...styles.listMemo }}>{e.memo}</div>
               <EditableAmount
                 value={e.amount}
                 sign={e.type === "income" ? "+" : "−"}
@@ -522,6 +521,7 @@ function EntryTab({ data, addEntry, removeEntry, editEntry, bulkRemoveEntries, b
                 onSave={(n) => editEntry(e.id, { amount: n })}
               />
               <button onClick={() => removeEntry(e.id)} style={styles.deleteBtn} aria-label="削除">×</button>
+              {e.memo ? <div style={styles.listMemoFull}>💬 {e.memo}</div> : null}
             </div>
           ))}
         </div>
@@ -1220,8 +1220,12 @@ const styles = {
   bulkEditGroup: { display: "flex", gap: 8, alignItems: "center" },
   bulkEditBtn: { background: "var(--ink)", color: "#fff", border: "none", borderRadius: 4, padding: "8px 12px", fontSize: 12.5, fontWeight: 700, cursor: "pointer" },
   listRowSelectable: {
-    display: "grid", gridTemplateColumns: "20px 90px 100px 1fr auto auto", gap: 10, alignItems: "center",
+    display: "grid", gridTemplateColumns: "20px 90px minmax(0, 1fr) auto auto", gap: "4px 10px", alignItems: "center",
     padding: "9px 4px", borderBottom: "1px solid var(--rule)", fontSize: 13.5,
+  },
+  listMemoFull: {
+    gridColumn: "2 / -1", color: "var(--inkSoft)", fontSize: 12.5, lineHeight: 1.5,
+    whiteSpace: "pre-wrap", overflowWrap: "anywhere",
   },
   note: { fontSize: 12.5, color: "var(--inkSoft)", marginTop: 14, lineHeight: 1.6 },
 };
