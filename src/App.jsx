@@ -37,8 +37,8 @@ function computeCardPaymentDate(purchaseISO) {
   let payMonth = cutoffMonth + 1;
   let payYear = cutoffYear;
   if (payMonth > 11) { payMonth -= 12; payYear += 1; }
-  const pay = new Date(payYear, payMonth, 4);
-  return pay.toISOString().slice(0, 10);
+  // toISOString() は UTC 変換でJSTだと前日にずれるため、文字列で直接組み立てる
+  return `${payYear}-${String(payMonth + 1).padStart(2, "0")}-04`;
 }
 
 function addMonths(ym, n) {
