@@ -534,6 +534,15 @@ function EntryTab({ data, addEntry, removeEntry, editEntry, bulkRemoveEntries, b
 function SummaryTab({ monthlyTotals, openingBalance, setOpeningBalance }) {
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
+  // 入力中は手元の文字列だけ更新し、確定(フォーカスを外す/Enter)したときに一度だけ保存する。
+  // 1文字ごとに保存すると「9」「99」のような途中の値が保存されてしまうため。
+  const [balanceDraft, setBalanceDraft] = useState(String(openingBalance));
+  useEffect(() => { setBalanceDraft(String(openingBalance)); }, [openingBalance]);
+  const commitBalance = () => {
+    const n = Number(balanceDraft);
+    if (balanceDraft.trim() === "" || !Number.isFinite(n)) { setBalanceDraft(String(openingBalance)); return; }
+    if (n !== Number(openingBalance)) setOpeningBalance(n);
+  };
 
   if (monthlyTotals.length === 0) {
     return <div style={styles.card}><div style={styles.empty}>データがまだありません。「収支入力」からはじめてください。</div></div>;
@@ -552,7 +561,14 @@ function SummaryTab({ monthlyTotals, openingBalance, setOpeningBalance }) {
         <h2 style={styles.cardTitle}>起点残高(2026年7月末時点)</h2>
         <label style={{ ...styles.label, maxWidth: 260 }}>
           2026年8月より前に貯まっていた金額(円)
-          <input type="number" value={openingBalance} onChange={(e) => setOpeningBalance(Number(e.target.value))} style={styles.input} />
+          <input
+            type="number"
+            value={balanceDraft}
+            onChange={(e) => setBalanceDraft(e.target.value)}
+            onBlur={commitBalance}
+            onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+            style={styles.input}
+          />
         </label>
         <p style={styles.note}>2026年8月より前の記帳は入れていないので、その代わりにここで金額を持たせています。以降の累計貯金額はすべてこの金額を起点に計算されます。</p>
       </section>
